@@ -6,11 +6,14 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.utilities import GoogleSerperAPIWrapper
 from langchain.agents import Tool, initialize_agent, AgentType
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
 # Set up API keys (replace with your actual keys)
-os.environ["OPENAI_API_KEY"] = "your_openai_api_key"
+os.environ["OPENAI_API_KEY"] = "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"
 os.environ["SERPER_API_KEY"] = "your_serper_api_key"
 
 # Initialize LLM

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog Article Generator</title>
+</head>
+<body>
+  <h1>Blog Article Generator</h1>
+
+  <!-- Form to Generate an Article -->
+  <form method="POST" action="/generate_article">
+      <label for="topic">Enter your blog topic:</label><br>
+      <input type="text" id="topic" name="topic" required><br><br>
+      <button type="submit">Generate Article</button>
+  </form>
+
+  {% if article %}
+      <h2>Generated Article:</h2>
+      <p>{{ article }}</p>
+  {% endif %}
+
+  <hr>
+
+  <!-- Form to Rewrite Text -->
+  <form method="POST" action="/rewrite_text">
+      <label for="text_to_rewrite">Enter text to rewrite:</label><br>
+      <textarea id="text_to_rewrite" name="text_to_rewrite" rows="5" cols="50" required></textarea><br><br>
+
+      <label for="mode">Select rewriting mode:</label><br>
+      <select id="mode" name="mode">
+          <option value="standard">Standard</option>
+          <option value="creative">Creative</option>
+          <option value="formal">Formal</option>
+          <option value="casual">Casual</option>
+      </select><br><br>
+
+      <button type="submit">Rewrite Text</button>
+  </form>
+
+  {% if rewritten_text %}
+      <h2>Rewritten Text:</h2>
+      <p>{{ rewritten_text }}</p>
+  {% endif %}
+</body>
+</html>

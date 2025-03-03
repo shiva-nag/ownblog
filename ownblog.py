@@ -1,23 +1,22 @@
-#
-import os
-from flask import Flask, request, jsonify, render_template
-from langchain.llms import OpenAI
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
-from langchain.utilities import GoogleSerperAPIWrapper
-from langchain.agents import Tool, initialize_agent, AgentType
 from dotenv import load_dotenv
+from flask import Flask, request, jsonify, render_template
+from langchain.agents import Tool, initialize_agent, AgentType
+# from langchain_community.llms import OpenAI
+# from langchain.prompts import PromptTemplate
+from langchain.chains import LLMChain
+from langchain_community.chat_models import ChatOpenAI
+from langchain_community.utilities import GoogleSerperAPIWrapper
+from langchain_core.prompts import PromptTemplate
+from langchain_openai import ChatOpenAI
+from nltk.tokenize import sent_tokenize
 
 load_dotenv()
 
 app = Flask(__name__)
 
-# Set up API keys (replace with your actual keys)
-os.environ["OPENAI_API_KEY"] = "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"
-os.environ["SERPER_API_KEY"] = "your_serper_api_key"
-
 # Initialize LLM
-llm = OpenAI(temperature=0.7)
+#llm = OpenAI(temperature=0.7)
+llm = ChatOpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
 
 # Set up Google Search
 search = GoogleSerperAPIWrapper()
@@ -42,13 +41,34 @@ idea_prompt = PromptTemplate(
 )
 
 article_prompt = PromptTemplate(
-    input_variables=["topic", "research"],
-    template="Write a blog article about {topic}. Use the following research to include citations: {research}. The article should have an introduction, body paragraphs, and a conclusion. Include at least 3 citations in the format [1], [2], etc."
+    input_variables=["topic", "research", "section"],
+    template="Write a {section} about {topic} using the following research: {research}. The {section} should be up to 100 words."
 )
 
+rewrite_prompts = {
+    "standard": PromptTemplate(
+        input_variables=["sentence"],
+        template="Rewrite the following sentence while maintaining its original meaning: {sentence}"
+    ),
+    "creative": PromptTemplate(
+        input_variables=["sentence"],
+        template="Creatively rewrite the following sentence, adding more descriptive language: {sentence}"
+    ),
+    "formal": PromptTemplate(
+        input_variables=["sentence"],
+        template="Rewrite the following sentence in a more formal tone: {sentence}"
+    ),
+    "casual": PromptTemplate(
+        input_variables=["sentence"],
+        template="Rewrite the following sentence in a casual, conversational tone: {sentence}"
+    )
+}
+
 # Chains
-idea_chain = LLMChain(llm=llm, prompt=idea_prompt)
-article_chain = LLMChain(llm=llm, prompt=article_prompt)
+#idea_chain = LLMChain(llm=llm, prompt=idea_prompt)
+idea_chain = idea_prompt | llm
+article_chain = article_prompt | llm
+#article_chain = LLMChain(llm=llm, prompt=article_prompt)
 
 @app.route('/')
 def home():
@@ -57,15 +77,50 @@ def home():
 @app.route('/generate_ideas', methods=['POST'])
 def generate_ideas():
     topic = request.json['topic']
-    ideas = idea_chain.run(topic)
+    ideas = idea_chain.invoke(topic)
     return jsonify({"ideas": ideas})
 
 @app.route('/generate_article', methods=['POST'])
 def generate_article():
     topic = request.json['topic']
-    research = agent.run(f"Find information about {topic} for a blog article. Include at least 3 relevant facts or statistics.")
-    article = article_chain.run(topic=topic, research=research)
-    return jsonify({"article": article})
+    research = agent.run(f"Find information about {topic} for a blog article. Include at least 3 relevant facts or statistics. Include citations for these statistics")
+    sections = [
+        "introduction",
+        "body paragraph 1",
+        "body paragraph 2",
+        "body paragraph 3",
+        "body paragraph 4",
+        "concluding summary"
+    ]
+
+    article_sections = {}
+    for section in sections:
+#        section_chain = LLMChain(llm=llm, prompt=article_prompt)
+        section_content = article_chain.run(topic=topic, research=research, section=section)
+        article_sections[section] = section_content
+
+    full_article = "\n".join(article_sections.values())
+    return render_template('index.html', topic=topic, article=full_article)
+#    return jsonify({"article": full_article})
+
+
+@app.route('/rewrite_text', methods=['POST'])
+def rewrite_text():
+    text_to_rewrite = request.form['text_to_rewrite']
+    mode = request.form['mode']
+
+    sentences = sent_tokenize(text_to_rewrite)
+
+    rewritten_sentences = []
+    for sentence in sentences:
+        rewrite_prompt = rewrite_prompts[mode]
+        rewrite_chain = LLMChain(llm=llm, prompt=rewrite_prompt)
+        rewritten_sentence = rewrite_chain.run(sentence=sentence)
+        rewritten_sentences.append(rewritten_sentence)
+
+    rewritten_text = " ".join(rewritten_sentences)
+
+    return render_template('index.html', rewritten_text=rewritten_text)
 
 if __name__ == '__main__':
     app.run(debug=True)

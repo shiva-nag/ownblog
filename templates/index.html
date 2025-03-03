@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Article Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Blog Article Generator</h1>
+    <div>
+        <h2>Generate Ideas</h2>
+        <input type="text" id="ideaTopic" placeholder="Enter a topic">
+        <button onclick="generateIdeas()">Generate Ideas</button>
+        <div id="ideasResult"></div>
+    </div>
+    <div>
+        <h2>Generate Article</h2>
+        <input type="text" id="articleTopic" placeholder="Enter a topic">
+        <button onclick="generateArticle()">Generate Article</button>
+        <div id="articleResult"></div>
+    </div>
+
+    <script>
+        function generateIdeas() {
+            const topic = document.getElementById('ideaTopic').value;
+            axios.post('/generate_ideas', { topic: topic })
+                .then(response => {
+                    document.getElementById('ideasResult').innerText = response.data.ideas;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function generateArticle() {
+            const topic = document.getElementById('articleTopic').value;
+            axios.post('/generate_article', { topic: topic })
+                .then(response => {
+                    document.getElementById('articleResult').innerText = response.data.article;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

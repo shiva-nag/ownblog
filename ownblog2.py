@@ -94,7 +94,8 @@ def stream_article(topic, research):
     ]
     for section in sections:
         yield f"data: {section.upper()}:\n\n"
-        for chunk in article_chain.stream(topic=topic, research=research, section=section):
+        # Pass a dictionary as input to stream()
+        for chunk in article_chain.stream({"topic": topic, "research": research, "section": section}):
             yield f"data: {chunk}\n\n"
         yield "data: \n\n"
     yield "data: [DONE]\n\n"
@@ -110,7 +111,8 @@ def stream_rewrite(text_to_rewrite, mode):
     rewrite_prompt = rewrite_prompts[mode]
     rewrite_chain = LLMChain(llm=llm, prompt=rewrite_prompt)
     for sentence in sentences:
-        for chunk in rewrite_chain.stream(sentence=sentence):
+        #Pass a dictionary as input to stream()
+        for chunk in rewrite_chain.stream({"sentence": sentence}):
             yield f"data: {chunk}\n\n"
         yield "data: \n\n"
     yield "data: [DONE]\n\n"

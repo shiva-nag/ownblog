@@ -37,8 +37,8 @@ idea_prompt = PromptTemplate(
 )
 
 article_prompt = PromptTemplate(
-    input_variables=["topic", "research", "section"],
-    template="Write a {section} about {topic} using the following research: {research}. The {section} should be up to 200 words."
+    input_variables=["topic", "research"],
+    template="Write a blog article about {topic} using the following research: {research}. The article should be up to 1000 words."
 )
 
 rewrite_prompts = {
@@ -84,20 +84,8 @@ def generate_article():
     return Response(stream_with_context(stream_article(topic, research)), content_type='text/event-stream')
 
 def stream_article(topic, research):
-    sections = [
-        "introduction",
-        "body paragraph 1",
-        "body paragraph 2",
-        "body paragraph 3",
-        "body paragraph 4",
-        "concluding paragraph"
-    ]
-    for section in sections:
-        yield f"data: {section.upper()}:\n\n"
-        # Pass a dictionary as input to stream()
-        for chunk in article_chain.stream({"topic": topic, "research": research, "section": section}):
+    for chunk in article_chain.stream({"topic": topic, "research": research}):
             yield f"data: {chunk}\n\n"
-        yield "data: \n\n"
     yield "data: [DONE]\n\n"
 
 @app.route('/rewrite_text', methods=['POST'])

@@ -73,8 +73,13 @@ def generate_ideas():
     return Response(stream_with_context(stream_ideas(topic)), content_type='text/event-stream')
 
 def stream_ideas(topic):
-    for chunk in idea_chain.stream({"topic": topic}):
-        yield f"data: {chunk}\n\n"
+ #   for chunk in idea_chain.stream({"topic": topic}):
+ #       yield f"data: {chunk}\n\n"
+ #   yield "data: [DONE]\n\n"
+    ideas = idea_chain.invoke({"topic": topic})
+    formatted_ideas = ideas['text'].strip().split('\n')
+    for idea in formatted_ideas:
+         yield f"data: {idea}\n\n"
     yield "data: [DONE]\n\n"
 
 @app.route('/generate_article', methods=['POST'])

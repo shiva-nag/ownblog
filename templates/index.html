@@ -23,6 +23,9 @@
                                 if (data === '[DONE]') {
                                     return;
                                 }
+                                 // Create a new list item for each idea
+                                 const li = document.createElement('li');
+                                 li.textContent = data;
                                 outputElement.innerHTML += data;
                             }
                         });
@@ -39,7 +42,11 @@
             output.innerHTML = '';
             const formData = new FormData();
             formData.append('topic', topic);
-            streamResponse('/generate_ideas', formData, output);
+             // Create an unordered list to hold the ideas
+             const ul = document.createElement('ul');
+             output.appendChild(ul);
+            //streamResponse('/generate_ideas', formData, output);
+             streamResponse('/generate_ideas', formData, ul);
         }
 
         function generateArticle() {

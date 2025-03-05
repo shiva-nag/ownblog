@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3cde2292-8856-4360-8664-0fa4f9163167" name="Changes" comment="Second rewrite">
+    <list default="true" id="3cde2292-8856-4360-8664-0fa4f9163167" name="Changes" comment="Third rewrite">
+      <change afterPath="$PROJECT_DIR$/ownblog4.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.ENV" beforeDir="false" afterPath="$PROJECT_DIR$/.ENV" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ownblog2.py" beforeDir="false" afterPath="$PROJECT_DIR$/ownblog2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ownblog3.py" beforeDir="false" afterPath="$PROJECT_DIR$/ownblog3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,15 +19,21 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--tags" />
+        <option name="title" value="All" />
+      </GitPushTagMode>
+    </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="First-rewrite" />
+        <entry key="$PROJECT_DIR$" value="Second-rewrite" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -56,9 +65,11 @@
     "DefaultHtmlFileTemplate": "HTML File",
     "Python.ownblog.executor": "Run",
     "Python.ownblog2.executor": "Run",
+    "Python.ownblog3.executor": "Run",
+    "Python.ownblog4.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "Second-rewrite",
+    "git-widget-placeholder": "third-rewrite",
     "ignore.virus.scanning.warn.message": "true"
   }
 }]]></component>
@@ -166,7 +177,55 @@
       <option name="project" value="LOCAL" />
       <updated>1741014172455</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Second rewrite">
+      <option name="closed" value="true" />
+      <created>1741199158813</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1741199158813</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Second rewrite">
+      <option name="closed" value="true" />
+      <created>1741199171876</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1741199171876</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Second rewrite">
+      <option name="closed" value="true" />
+      <created>1741199178816</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1741199178816</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Third rewrite">
+      <option name="closed" value="true" />
+      <created>1741200694062</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1741200694064</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Third rewrite">
+      <option name="closed" value="true" />
+      <created>1741200710966</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1741200710966</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Third rewrite">
+      <option name="closed" value="true" />
+      <created>1741200780042</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1741200780042</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -174,6 +233,7 @@
     <MESSAGE value="First rewrite" />
     <MESSAGE value="Updates" />
     <MESSAGE value="Second rewrite" />
-    <option name="LAST_COMMIT_MESSAGE" value="Second rewrite" />
+    <MESSAGE value="Third rewrite" />
+    <option name="LAST_COMMIT_MESSAGE" value="Third rewrite" />
   </component>
 </project>

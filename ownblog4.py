@@ -15,7 +15,7 @@ load_dotenv()
 app = Flask(__name__)
 
 # Initialize LLM with streaming capability
-llm = ChatOpenAI(temperature=0.7, streaming=True)
+llm = ChatOpenAI(temperature=0.8, model_name="gpt-4.5-preview", streaming=True)
 
 search = GoogleSerperAPIWrapper()
 search_tool = Tool(
@@ -38,7 +38,7 @@ idea_prompt = PromptTemplate(
 
 article_prompt = PromptTemplate(
     input_variables=["topic", "research"],
-    template="Write a blog article about {topic} using the following research: {research}. The article should be at least 1000 words long."
+    template="Write a blog article about {topic} using the following research: {research}. The article should be at least 1000 words long.covering multiple aspects of the topic in detail. Include an introduction, at least 4 paragraphs, and a conclusion"
 )
 
 rewrite_prompts = {

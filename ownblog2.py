@@ -1,24 +1,22 @@
-from dotenv import load_dotenv
-from flask import Flask, request, jsonify, render_template
-from langchain.agents import Tool, initialize_agent, AgentType
-# from langchain_community.llms import OpenAI
-# from langchain.prompts import PromptTemplate
+from flask import Flask, request, jsonify, render_template, Response, stream_with_context
+from langchain.llms import OpenAI
+from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain_community.chat_models import ChatOpenAI
+from langchain_core.messages import HumanMessage, AIMessage
 from langchain_community.utilities import GoogleSerperAPIWrapper
-from langchain_core.prompts import PromptTemplate
-from langchain_openai import ChatOpenAI
+from langchain.agents import Tool, initialize_agent, AgentType
 from nltk.tokenize import sent_tokenize
+from dotenv import load_dotenv
+import os
 
 load_dotenv()
 
 app = Flask(__name__)
 
-# Initialize LLM
-#llm = OpenAI(temperature=0.7)
-llm = ChatOpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
+# Initialize LLM with streaming capability
+llm = ChatOpenAI(temperature=0.7, streaming=True)
 
-# Set up Google Search
 search = GoogleSerperAPIWrapper()
 search_tool = Tool(
     name="Google Search",
@@ -26,7 +24,6 @@ search_tool = Tool(
     description="Useful for searching the internet for content ideas and information."
 )
 
-# Initialize agent
 agent = initialize_agent(
     [search_tool],
     llm,
@@ -34,7 +31,6 @@ agent = initialize_agent(
     verbose=True
 )
 
-# Prompt templates
 idea_prompt = PromptTemplate(
     input_variables=["topic"],
     template="Generate 5 blog post ideas about {topic}. Return only the numbered list of ideas."
@@ -42,7 +38,7 @@ idea_prompt = PromptTemplate(
 
 article_prompt = PromptTemplate(
     input_variables=["topic", "research", "section"],
-    template="Write a {section} about {topic} using the following research: {research}. The {section} should be up to 100 words."
+    template="Write a {section} about {topic} using the following research: {research}. The {section} should be up to 200 words."
 )
 
 rewrite_prompts = {
@@ -64,11 +60,8 @@ rewrite_prompts = {
     )
 }
 
-# Chains
-#idea_chain = LLMChain(llm=llm, prompt=idea_prompt)
-idea_chain = idea_prompt | llm
-article_chain = article_prompt | llm
-#article_chain = LLMChain(llm=llm, prompt=article_prompt)
+idea_chain = LLMChain(llm=llm, prompt=idea_prompt)
+article_chain = LLMChain(llm=llm, prompt=article_prompt)
 
 @app.route('/')
 def home():
@@ -76,52 +69,53 @@ def home():
 
 @app.route('/generate_ideas', methods=['POST'])
 def generate_ideas():
-    topic = request.json['topic']
-    ideas = idea_chain.invoke(topic)
-    return jsonify({"ideas": ideas})
+    topic = request.form['topic']
+    return Response(stream_with_context(stream_ideas(topic)), content_type='text/event-stream')
+
+def stream_ideas(topic):
+    for chunk in idea_chain.stream({"topic": topic}):
+        yield f"data: {chunk}\n\n"
+    yield "data: [DONE]\n\n"
 
 @app.route('/generate_article', methods=['POST'])
 def generate_article():
-    topic = request.json['topic']
-    research = agent.run(f"Find information about {topic} for a blog article. Include at least 3 relevant facts or statistics. Include citations for these statistics")
+    topic = request.form['topic']
+    research = agent.run(f"Find information about {topic} for a blog article. Include at least 3 relevant facts or statistics.")
+    return Response(stream_with_context(stream_article(topic, research)), content_type='text/event-stream')
+
+def stream_article(topic, research):
     sections = [
         "introduction",
         "body paragraph 1",
         "body paragraph 2",
         "body paragraph 3",
         "body paragraph 4",
-        "concluding summary"
+        "concluding paragraph"
     ]
-
-    article_sections = {}
     for section in sections:
-#        section_chain = LLMChain(llm=llm, prompt=article_prompt)
-        section_content = article_chain.run(topic=topic, research=research, section=section)
-        article_sections[section] = section_content
-
-    full_article = "\n".join(article_sections.values())
-    return render_template('index.html', topic=topic, article=full_article)
-#    return jsonify({"article": full_article})
-
+        yield f"data: {section.upper()}:\n\n"
+        # Pass a dictionary as input to stream()
+        for chunk in article_chain.stream({"topic": topic, "research": research, "section": section}):
+            yield f"data: {chunk}\n\n"
+        yield "data: \n\n"
+    yield "data: [DONE]\n\n"
 
 @app.route('/rewrite_text', methods=['POST'])
 def rewrite_text():
     text_to_rewrite = request.form['text_to_rewrite']
     mode = request.form['mode']
+    return Response(stream_with_context(stream_rewrite(text_to_rewrite, mode)), content_type='text/event-stream')
 
+def stream_rewrite(text_to_rewrite, mode):
     sentences = sent_tokenize(text_to_rewrite)
-
-    rewritten_sentences = []
+    rewrite_prompt = rewrite_prompts[mode]
+    rewrite_chain = LLMChain(llm=llm, prompt=rewrite_prompt)
     for sentence in sentences:
-        rewrite_prompt = rewrite_prompts[mode]
-        rewrite_chain = LLMChain(llm=llm, prompt=rewrite_prompt)
-        rewritten_sentence = rewrite_chain.run(sentence=sentence)
-        rewritten_sentences.append(rewritten_sentence)
-
-    rewritten_text = " ".join(rewritten_sentences)
-
-    return render_template('index.html', rewritten_text=rewritten_text)
+        #Pass a dictionary as input to stream()
+        for chunk in rewrite_chain.stream({"sentence": sentence}):
+            yield f"data: {chunk}\n\n"
+        yield "data: \n\n"
+    yield "data: [DONE]\n\n"
 
 if __name__ == '__main__':
     app.run(debug=True)
-
